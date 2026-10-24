@@ -1,0 +1,588 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity Generator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #eee;
+    background:
+        radial-gradient(ellipse at 75% 15%, #464646, transparent 45%),
+        radial-gradient(ellipse at 15% 85%, #292929, transparent 45%),
+        linear-gradient(135deg, #303030, #171717 65%, #252525);
+}
+
+button, select {
+    font: inherit;
+}
+
+.window {
+    width: 100%;
+    max-width: 740px;
+    padding: 36px;
+    border: 1px solid #ffffff55;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, .055);
+    backdrop-filter: blur(35px);
+    -webkit-backdrop-filter: blur(35px);
+    box-shadow: 0 24px 80px #0003;
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.select-box {
+    position: relative;
+}
+
+.select-box svg {
+    position: absolute;
+    top: 50%;
+    left: 18px;
+    width: 21px;
+    height: 21px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.select-box .arrow {
+    left: auto;
+    right: 15px;
+    width: 15px;
+    height: 15px;
+}
+
+select {
+    appearance: none;
+    width: 100%;
+    min-height: 62px;
+    padding: 0 40px 0 50px;
+    color: #eee;
+    background: #ffffff08;
+    border: 1px solid #ffffff22;
+    border-radius: 16px;
+    outline: none;
+    cursor: pointer;
+}
+
+select:hover,
+select:focus {
+    background: #ffffff12;
+    border-color: #ffffff55;
+}
+
+select option {
+    color: #eee;
+    background: #292929;
+}
+
+.activity-card {
+    padding: 35px 30px 25px;
+    border: 1px solid #ffffff55;
+    border-radius: 22px;
+    background: #ffffff06;
+}
+
+.activity-main {
+    min-height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+}
+
+.shuffle-icon {
+    width: 30px;
+    height: 30px;
+    color: #ddd;
+}
+
+#activity {
+    max-width: 100%;
+    font-size: clamp(19px, 3vw, 25px);
+    font-weight: 400;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.divider {
+    height: 1px;
+    background: #ffffff22;
+    margin: 17px 0 25px;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.detail {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.detail svg {
+    flex-shrink: 0;
+    width: 25px;
+    height: 25px;
+}
+
+.detail-label {
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 7px;
+}
+
+.detail-value {
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+
+.generate {
+    width: 100%;
+    min-height: 74px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+    color: #eee;
+    background: #ffffff0c;
+    border: 1px solid #ffffff66;
+    border-radius: 20px;
+    font-size: 19px;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.generate svg {
+    width: 22px;
+    height: 22px;
+}
+
+.generate:hover {
+    background: #ffffff20;
+}
+
+.generate:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+#message {
+    margin-top: 12px;
+    color: #bbb;
+    font-size: 12px;
+    text-align: center;
+}
+
+@media (max-width: 520px) {
+    .window {
+        padding: 20px;
+    }
+
+    .filters {
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    select {
+        min-height: 54px;
+        padding-left: 38px;
+        padding-right: 28px;
+        font-size: 13px;
+    }
+
+    .select-box svg {
+        left: 12px;
+        width: 17px;
+        height: 17px;
+    }
+
+    .select-box .arrow {
+        left: auto;
+        right: 9px;
+        width: 13px;
+        height: 13px;
+    }
+
+    .activity-card {
+        padding: 22px 16px;
+    }
+
+    .details {
+        gap: 8px;
+    }
+
+    .detail {
+        gap: 7px;
+    }
+
+    .detail svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .detail-label {
+        font-size: 12px;
+    }
+
+    .detail-value {
+        font-size: 13px;
+    }
+
+    .generate {
+        min-height: 62px;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+}
+</style>
+</head>
+
+<body>
+<main class="window">
+
+    <div class="filters">
+        <div class="select-box">
+            <svg viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.6">
+                <path d="M20 13 13 20a2 2 0 0 1-3 0L3 13V4h9l8 9Z"/>
+                <circle cx="8" cy="8" r="1.4"/>
+            </svg>
+
+            <select id="typeFilter" aria-label="Activity type">
+                <option value="">Any type</option>
+                <option value="education">Education</option>
+                <option value="recreational">Recreational</option>
+                <option value="social">Social</option>
+                <option value="charity">Charity</option>
+                <option value="cooking">Cooking</option>
+                <option value="relaxation">Relaxation</option>
+                <option value="busywork">Busywork</option>
+            </select>
+
+            <svg class="arrow" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.6">
+                <path d="m7 10 5 5 5-5"/>
+            </svg>
+        </div>
+
+        <div class="select-box">
+            <svg viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.6">
+                <ellipse cx="12" cy="5" rx="8" ry="3"/>
+                <path d="M4 5v5c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>
+                <path d="M4 10v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5"/>
+            </svg>
+
+            <select id="priceFilter" aria-label="Maximum price">
+                <option value="">Any price</option>
+                <option value="0">Free only</option>
+                <option value="0.25">Low cost or less</option>
+                <option value="0.5">Medium cost or less</option>
+            </select>
+
+            <svg class="arrow" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.6">
+                <path d="m7 10 5 5 5-5"/>
+            </svg>
+        </div>
+    </div>
+
+    <section class="activity-card">
+        <div class="activity-main">
+            <svg class="shuffle-icon" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor"
+                 stroke-width="1.7" stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path d="m18 14 4 4-4 4"/>
+                <path d="M2 18h2.5a5 5 0 0 0 4-2l7-8a5 5 0 0 1 4-2H22"/>
+                <path d="m18 2 4 4-4 4"/>
+                <path d="M2 6h2.5a5 5 0 0 1 4 2l1.5 1.7"/>
+                <path d="m14 14 1.5 2a5 5 0 0 0 4 2H22"/>
+            </svg>
+
+            <div id="activity" aria-live="polite">
+                Click generate to get an activity
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="details">
+            <div class="detail">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.6">
+                    <path d="M20 13 13 20a2 2 0 0 1-3 0L3 13V4h9l8 9Z"/>
+                    <circle cx="8" cy="8" r="1.4"/>
+                </svg>
+                <div>
+                    <div class="detail-label">Type</div>
+                    <div class="detail-value" id="type">—</div>
+                </div>
+            </div>
+
+            <div class="detail">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.6">
+                    <ellipse cx="12" cy="5" rx="8" ry="3"/>
+                    <path d="M4 5v5c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/>
+                    <path d="M4 10v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5"/>
+                </svg>
+                <div>
+                    <div class="detail-label">Price</div>
+                    <div class="detail-value" id="price">—</div>
+                </div>
+            </div>
+
+            <div class="detail">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.6"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="8" r="4"/>
+                    <path d="M2 21v-2a7 7 0 0 1 14 0v2"/>
+                    <path d="M16 4a4 4 0 0 1 0 8"/>
+                    <path d="M19 14a6 6 0 0 1 3 5v2"/>
+                </svg>
+                <div>
+                    <div class="detail-label">People</div>
+                    <div class="detail-value" id="people">—</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <button class="generate" id="generateButton"
+            onclick="generateActivity()">
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path d="m18 14 4 4-4 4"/>
+            <path d="M2 18h2.5a5 5 0 0 0 4-2l7-8a5 5 0 0 1 4-2H22"/>
+            <path d="m18 2 4 4-4 4"/>
+            <path d="M2 6h2.5a5 5 0 0 1 4 2l1.5 1.7"/>
+            <path d="m14 14 1.5 2a5 5 0 0 0 4 2H22"/>
+        </svg>
+        <span>Generate</span>
+    </button>
+
+    <div id="message" role="status"></div>
+</main>
+
+<script>
+const API = "https://bored-api.appbrewery.com";
+const PROXY = "https://proxy.cors.dev/";
+
+const activityEl = document.getElementById("activity");
+const typeEl = document.getElementById("type");
+const priceEl = document.getElementById("price");
+const peopleEl = document.getElementById("people");
+const messageEl = document.getElementById("message");
+const button = document.getElementById("generateButton");
+
+const localActivities = [
+    { activity: "Learn five words in another language", type: "education", price: 0, participants: 1 },
+    { activity: "Read about a topic you find interesting", type: "education", price: 0, participants: 1 },
+    { activity: "Watch a short documentary", type: "education", price: 0, participants: 1 },
+    { activity: "Learn a simple magic trick", type: "education", price: 0, participants: 1 },
+    { activity: "Write a short story", type: "education", price: 0, participants: 1 },
+    { activity: "Take a different walking route", type: "recreational", price: 0, participants: 1 },
+    { activity: "Draw something in your room", type: "recreational", price: 0, participants: 1 },
+    { activity: "Try a new puzzle", type: "recreational", price: 0, participants: 1 },
+    { activity: "Learn a card game", type: "recreational", price: 0, participants: 2 },
+    { activity: "Take photographs of interesting details nearby", type: "recreational", price: 0, participants: 1 },
+    { activity: "Call a friend", type: "social", price: 0, participants: 2 },
+    { activity: "Play a word game with someone", type: "social", price: 0, participants: 2 },
+    { activity: "Make a handmade card for someone", type: "charity", price: 0, participants: 1 },
+    { activity: "Help someone with a small task", type: "charity", price: 0, participants: 1 },
+    { activity: "Make a simple snack", type: "cooking", price: 0.1, participants: 1 },
+    { activity: "Invent a new sandwich", type: "cooking", price: 0.1, participants: 1 },
+    { activity: "Prepare a drink you have never tried", type: "cooking", price: 0.1, participants: 1 },
+    { activity: "Listen to an album from start to finish", type: "relaxation", price: 0, participants: 1 },
+    { activity: "Spend ten minutes stretching gently", type: "relaxation", price: 0, participants: 1 },
+    { activity: "Sit quietly and enjoy your surroundings", type: "relaxation", price: 0, participants: 1 },
+    { activity: "Sort out your computer desktop", type: "busywork", price: 0, participants: 1 },
+    { activity: "Back up important files", type: "busywork", price: 0, participants: 1 },
+    { activity: "Clean one small area of your room", type: "busywork", price: 0, participants: 1 },
+    { activity: "Make a playlist for a specific mood", type: "recreational", price: 0, participants: 1 },
+    { activity: "Write down ten things you want to learn", type: "education", price: 0, participants: 1 },
+    { activity: "Make a paper airplane and test its flight", type: "recreational", price: 0, participants: 1 },
+    { activity: "Try drawing with your non-dominant hand", type: "recreational", price: 0, participants: 1 },
+    { activity: "Organize your photos into albums", type: "busywork", price: 0, participants: 1 },
+    { activity: "Learn a few chords on an instrument", type: "education", price: 0, participants: 1 },
+    { activity: "Invent a quiz and play it with a friend", type: "social", price: 0, participants: 2 }
+];
+
+function randomItem(items) {
+    return items[Math.floor(Math.random() * items.length)];
+}
+
+function priceLabel(price) {
+    price = Number(price) || 0;
+
+    if (price === 0) return "Free";
+    if (price <= 0.25) return "Low";
+    if (price <= 0.5) return "Medium";
+    return "High";
+}
+
+async function requestJSON(endpoint) {
+    const targetURL = API + endpoint;
+    const proxyURL = PROXY + targetURL;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 9500);
+
+    try {
+        const response = await fetch(proxyURL, {
+            method: "GET",
+            cache: "no-store",
+            credentials: "omit",
+            signal: controller.signal
+        });
+
+        if (!response.ok) {
+            const reason = response.headers.get("X-Cors-Error");
+            throw new Error(reason || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (
+            !Array.isArray(data) &&
+            (!data || typeof data.activity !== "string")
+        ) {
+            throw new Error("Invalid API response");
+        }
+
+        return data;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+function chooseLocal(type, maxPrice) {
+    let options = localActivities;
+
+    if (type) {
+        options = options.filter(item => item.type === type);
+    }
+
+    if (maxPrice !== "") {
+        options = options.filter(
+            item => item.price <= Number(maxPrice)
+        );
+    }
+
+    return options.length ? randomItem(options) : null;
+}
+
+function displayActivity(activity, usedFallback) {
+    activityEl.textContent = activity.activity;
+    typeEl.textContent = activity.type || "—";
+    priceEl.textContent = priceLabel(activity.price);
+    peopleEl.textContent = activity.participants ?? "—";
+    messageEl.textContent = usedFallback
+        ? "API unavailable — built-in activity"
+        : "";
+}
+
+async function generateActivity() {
+    const selectedType = document.getElementById("typeFilter").value;
+    const maxPrice = document.getElementById("priceFilter").value;
+
+    button.disabled = true;
+    button.querySelector("span").textContent = "Loading...";
+    messageEl.textContent = "";
+
+    try {
+        let activity;
+
+        if (selectedType || maxPrice !== "") {
+            let endpoint = "/filter";
+
+            if (selectedType) {
+                endpoint += "?type=" + encodeURIComponent(selectedType);
+            }
+
+            const data = await requestJSON(endpoint);
+            let options = Array.isArray(data) ? data : [data];
+
+            if (selectedType) {
+                options = options.filter(
+                    item => item.type === selectedType
+                );
+            }
+
+            if (maxPrice !== "") {
+                options = options.filter(
+                    item => Number(item.price) <= Number(maxPrice)
+                );
+            }
+
+            if (!options.length) {
+                throw new Error("No matching activities");
+            }
+
+            activity = randomItem(options);
+        } else {
+            const data = await requestJSON("/random");
+
+            activity = Array.isArray(data)
+                ? randomItem(data)
+                : data;
+        }
+
+        if (!activity || !activity.activity) {
+            throw new Error("Invalid activity");
+        }
+
+        displayActivity(activity, false);
+
+    } catch (error) {
+        const fallback = chooseLocal(selectedType, maxPrice);
+
+        if (fallback) {
+            displayActivity(fallback, true);
+        } else {
+            activityEl.textContent = "No matching activity found.";
+            typeEl.textContent = "—";
+            priceEl.textContent = "—";
+            peopleEl.textContent = "—";
+            messageEl.textContent = "";
+        }
+
+        console.error("Activity API error:", error);
+    } finally {
+        button.disabled = false;
+        button.querySelector("span").textContent = "Generate";
+    }
+}
+</script>
+
+</body>
+</html>
